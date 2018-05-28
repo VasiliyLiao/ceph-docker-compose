@@ -1,0 +1,6 @@
+VOLUMES_PATH=~/volumes_data/ceph
+DASHBOARD_PORT=7000
+RGW_PORT=8080
+OSD1_DEVICE=/dev/sdb
+OSD2_DEVICE=/dev/sdc
+OSD3_DEVICE=/dev/sdd

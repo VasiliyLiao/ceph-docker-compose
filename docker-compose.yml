@@ -1,0 +1,117 @@
+version: "3"
+
+networks:
+  cluster-net:
+    external:
+      name: ceph-cluster-net
+
+services:
+  
+  mon1:
+    image: ceph/daemon
+    command: "mon"
+    environment:
+      MON_IP: ${MON1_IP}
+      CEPH_PUBLIC_NETWORK: ${MON1_CEPH_PUBLIC_NETWORK}
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+    networks: 
+      - cluster-net
+
+  mgr: 
+    image: ceph/daemon
+    command: "mgr"
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+    depends_on:
+      - mon1
+    networks: 
+      - cluster-net
+    ports:
+      - ${DASHBOARD_PORT}:7000
+  
+  osd1:
+    pid: host
+    privileged: true
+    image: ceph/daemon
+    command: "osd"
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+      - /dev/:/dev/
+    environment:
+      OSD_DEVICE: ${OSD1_DEVICE}
+      OSD_TYPE: disk
+      OSD_FORCE_ZAP: 1
+    depends_on:
+      - mon1
+    networks: 
+      - cluster-net
+  
+  osd2:
+    pid: host
+    privileged: true
+    image: ceph/daemon
+    command: "osd"
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+      - /dev/:/dev/
+    environment:
+      OSD_DEVICE: ${OSD2_DEVICE}
+      OSD_TYPE: disk
+      OSD_FORCE_ZAP: 1
+    depends_on:
+      - mon1
+    networks: 
+      - cluster-net
+
+  osd3:
+    pid: host
+    privileged: true
+    image: ceph/daemon
+    command: "osd"
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+      - /dev/:/dev/
+    environment:
+      OSD_DEVICE: ${OSD3_DEVICE}
+      OSD_TYPE: disk
+      OSD_FORCE_ZAP: 1
+    depends_on:
+      - mon1
+    networks: 
+      - cluster-net
+
+  rgw1:
+    image: ceph/daemon
+    command: "rgw"
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+    depends_on:
+      - osd1
+      - osd2
+      - osd3
+    networks: 
+      - cluster-net
+    ports:
+      - ${RGW_PORT}:8080
+
+  mds1:
+    image: ceph/daemon
+    command: "mds"
+    environment:
+      CEPHFS_CREATE: 1
+    volumes:
+      - ${VOLUMES_PATH}/ceph:/etc/ceph
+      - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
+    depends_on:
+      - osd1
+      - osd2
+      - osd3
+    networks: 
+      - cluster-net  
