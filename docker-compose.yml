@@ -8,7 +8,7 @@ networks:
 services:
   
   mon1:
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mon"
     environment:
       MON_IP: ${MON1_IP}
@@ -20,7 +20,7 @@ services:
       - cluster-net
 
   mgr: 
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mgr"
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
@@ -35,7 +35,7 @@ services:
   osd1:
     pid: host
     privileged: true
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "osd"
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
@@ -53,7 +53,7 @@ services:
   osd2:
     pid: host
     privileged: true
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "osd"
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
@@ -71,7 +71,7 @@ services:
   osd3:
     pid: host
     privileged: true
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "osd"
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
@@ -87,7 +87,7 @@ services:
       - cluster-net
 
   rgw1:
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "rgw"
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
@@ -102,7 +102,7 @@ services:
       - ${RGW_PORT}:8080
 
   mds1:
-    image: ceph/daemon
+    image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mds"
     environment:
       CEPHFS_CREATE: 1
