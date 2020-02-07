@@ -1,3 +1,5 @@
+LANG=en_US.utf8
+TZ=UTC
 CEPH_CONTAINER_VERSION=v3.1.0-stable-3.1-mimic-centos-7
 VOLUMES_PATH=~/volumes_data/ceph
 OSD_PATH=~/volumes_data/osds
