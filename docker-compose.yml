@@ -6,89 +6,94 @@ networks:
       name: ceph-cluster-net
 
 services:
-  
+
   mon1:
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mon"
     environment:
       MON_IP: ${MON1_IP}
       CEPH_PUBLIC_NETWORK: ${MON1_CEPH_PUBLIC_NETWORK}
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
-    networks: 
+    networks:
       - cluster-net
 
-  mgr: 
+  mgr:
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mgr"
+    environment:
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
     depends_on:
       - mon1
-    networks: 
+    networks:
       - cluster-net
     ports:
-      - ${DASHBOARD_PORT}:7000
-  
+      - ${DASHBOARD_PORT}:${INTERNAL_DASHBOARD_PORT}
+
   osd1:
     pid: host
     privileged: true
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
-    command: "osd"
+    command: "osd_directory"
+    environment:
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
-      - /dev/:/dev/
-    environment:
-      OSD_DEVICE: ${OSD1_DEVICE}
-      OSD_TYPE: disk
-      OSD_FORCE_ZAP: 1
+      - ${OSD_PATH}/osd1:/var/lib/ceph/osd
     depends_on:
       - mon1
-    networks: 
+    networks:
       - cluster-net
-  
+
   osd2:
     pid: host
     privileged: true
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
-    command: "osd"
+    command: "osd_directory"
+    environment:
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
-      - /dev/:/dev/
-    environment:
-      OSD_DEVICE: ${OSD2_DEVICE}
-      OSD_TYPE: disk
-      OSD_FORCE_ZAP: 1
+      - ${OSD_PATH}/osd2:/var/lib/ceph/osd
     depends_on:
       - mon1
-    networks: 
+    networks:
       - cluster-net
 
   osd3:
     pid: host
     privileged: true
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
-    command: "osd"
+    command: "osd_directory"
+    environment:
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
-      - /dev/:/dev/
-    environment:
-      OSD_DEVICE: ${OSD3_DEVICE}
-      OSD_TYPE: disk
-      OSD_FORCE_ZAP: 1
+      - ${OSD_PATH}/osd3:/var/lib/ceph/osd
     depends_on:
       - mon1
-    networks: 
+    networks:
       - cluster-net
 
   rgw1:
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "rgw"
+    environment:
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
@@ -96,16 +101,18 @@ services:
       - osd1
       - osd2
       - osd3
-    networks: 
+    networks:
       - cluster-net
     ports:
-      - ${RGW_PORT}:8080
+      - ${RGW_PORT}:7480
 
   mds1:
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mds"
     environment:
       CEPHFS_CREATE: 1
+      LANG: ${LANG}
+      TZ: ${TZ}
     volumes:
       - ${VOLUMES_PATH}/ceph:/etc/ceph
       - ${VOLUMES_PATH}/lib/:/var/lib/ceph/
@@ -113,5 +120,5 @@ services:
       - osd1
       - osd2
       - osd3
-    networks: 
-      - cluster-net  
+    networks:
+      - cluster-net
