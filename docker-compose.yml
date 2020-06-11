@@ -109,6 +109,7 @@ services:
   mds1:
     image: ceph/daemon:${CEPH_CONTAINER_VERSION}
     command: "mds"
+    hostname: "ceph-mds1-host"
     environment:
       CEPHFS_CREATE: 1
       LANG: ${LANG}
